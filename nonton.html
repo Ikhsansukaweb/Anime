@@ -40,6 +40,7 @@
 </div>
 
 <script>
+    const PROXY = "https://api.allorigins.win/raw?url="; dan setiap kali melakukan fetch, gunakan fetch(PROXY + encodeURIComponent(URL_API))
     const urlParams = new URLSearchParams(window.location.search);
     const animeId = urlParams.get('id'); // Ini adalah slug/id dari Otakudesu
     const animeTitle = urlParams.get('title');
