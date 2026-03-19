@@ -3,114 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watching: <?php echo $_GET['title']; ?></title>
+    <title>Donut Anime | Player</title>
     <style>
-        :root { --bg: #0e1117; --card: #1c2128; --accent: #00e701; --text: #adbac7; }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        :root { --bg: #0b0e14; --card: #161b22; --accent: #00e701; --text: #8b949e; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; }
         
-        .video-container { max-width: 900px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        iframe { width: 100%; aspect-ratio: 16 / 9; border: none; }
+        .header-nav { margin-bottom: 15px; }
+        .back-btn { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: bold; }
         
-        .info-section { max-width: 900px; margin: 20px auto; padding: 20px; background: var(--card); border-radius: 12px; border: 1px solid #30363d; }
-        h1 { color: var(--accent); font-size: 22px; margin-bottom: 10px; }
-        .episode-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; margin-top: 20px; }
-        .ep-btn { background: #30363d; color: white; text-align: center; padding: 10px; border-radius: 5px; text-decoration: none; font-size: 14px; transition: 0.3s; }
-        .ep-btn:hover, .ep-btn.active { background: var(--accent); color: black; font-weight: bold; }
+        .player-card { background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #30363d; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        .iframe-wrapper { position: relative; width: 100%; padding-top: 56.25%; /* 16:9 Aspect Ratio */ }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
-        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--accent); text-decoration: none; font-size: 14px; }
+        .details { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #30363d; }
+        h1 { font-size: 20px; margin: 0 0 10px 0; color: #fff; }
+        .status-tag { display: inline-block; background: rgba(0,231,1,0.1); color: var(--accent); padding: 4px 10px; border-radius: 4px; font-size: 12px; margin-bottom: 15px; }
+        
+        .episodes-label { font-size: 14px; color: var(--text); margin-bottom: 10px; display: block; }
+        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; }
+        .ep-item { background: #21262d; color: white; border: 1px solid #30363d; padding: 10px; border-radius: 6px; text-decoration: none; text-align: center; font-size: 13px; transition: 0.2s; cursor: pointer; }
+        .ep-item:hover { border-color: var(--accent); color: var(--accent); }
+        .ep-item.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+
+        .loading-text { text-align: center; padding: 40px; color: var(--text); font-style: italic; }
+        .error-msg { text-align: center; padding: 40px; color: #ff6b6b; }
     </style>
 </head>
 <body>
 
-<a href="index.html" class="back-btn">← Kembali ke Beranda</a>
+<div class="header-nav">
+    <a href="index.html" class="back-btn">← Kembali</a>
+</div>
 
-<div class="video-container">
-    <div id="player-wrapper">
-        <div style="padding: 100px; text-align: center;">Mencari sumber video...</div>
+<div class="player-card">
+    <div class="iframe-wrapper" id="video-player">
+        <div class="loading-text">Menyiapkan Player...</div>
     </div>
 </div>
 
-<div class="info-section">
-    <h1 id="anime-title"><?php echo $_GET['title']; ?></h1>
-    <p style="color: #8b949e;">Pilih Episode:</p>
-    <div class="episode-list" id="episode-list">
+<div class="details">
+    <div class="status-tag">Streaming HD</div>
+    <h1 id="anime-title">Memuat Judul...</h1>
+    
+    <span class="episodes-label">Daftar Episode:</span>
+    <div class="ep-grid" id="ep-list">
         </div>
 </div>
 
 <script>
-    const animeTitle = "<?php echo $_GET['title']; ?>";
-    const animeIdMal = "<?php echo $_GET['id']; ?>";
+    // Ambil data dari URL (Contoh: nonton.html?id=123&title=Naruto)
+    const urlParams = new URLSearchParams(window.location.search);
+    const rawTitle = urlParams.get('title') || "Anime";
+    const malId = urlParams.get('id');
 
-    // Kita pakai provider Gogoanime dari Consumet karena paling stabil
-    const CONSUMET_URL = "https://api.consumet.org/anime/gogoanime";
+    // Tampilkan judul di halaman
+    document.getElementById('anime-title').innerText = rawTitle;
 
-    async function initPlayer() {
+    // API Consumet yang lebih stabil
+    const BASE_URL = "https://consumet-api-production-e610.up.railway.app/anime/gogoanime";
+
+    async function startApp() {
         try {
-            // 1. Cari ID anime di Gogoanime berdasarkan judul dari Jikan
-            const searchRes = await fetch(`${CONSUMET_URL}/${animeTitle}`);
+            // 1. Cari ID Anime di Gogoanime
+            // Kita bersihkan judul sedikit agar pencarian lebih akurat
+            const cleanTitle = rawTitle.split('(')[0].trim(); 
+            const searchRes = await fetch(`${BASE_URL}/${cleanTitle}`);
             const searchData = await searchRes.json();
-            
-            if (searchData.results.length === 0) {
-                document.getElementById('player-wrapper').innerHTML = "<div style='padding:50px; text-align:center;'>Maaf, video tidak ditemukan untuk judul ini.</div>";
-                return;
+
+            if (!searchData.results || searchData.results.length === 0) {
+                throw new Error("Anime tidak ditemukan di server video.");
             }
 
-            const animeId = searchData.results[0].id; // Ambil ID hasil pertama
+            // Ambil ID anime pertama yang ketemu
+            const gogoId = searchData.results[0].id;
 
-            // 2. Ambil info detail & daftar episode
-            const infoRes = await fetch(`https://api.consumet.org/anime/gogoanime/info/${animeId}`);
+            // 2. Ambil List Episode
+            const infoRes = await fetch(`${BASE_URL}/info/${gogoId}`);
             const infoData = await infoRes.json();
 
-            // 3. Tampilkan daftar episode
-            const epContainer = document.getElementById('episode-list');
-            infoData.episodes.forEach(ep => {
-                const btn = document.createElement('a');
-                btn.href = "#";
-                btn.className = "ep-btn";
-                btn.innerText = ep.number;
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    loadVideo(ep.id);
-                    // Tandai tombol aktif
-                    document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                };
-                epContainer.appendChild(btn);
-            });
+            renderEpisodes(infoData.episodes);
 
-            // 4. Load episode pertama secara otomatis
+            // 3. Putar episode 1 otomatis
             if (infoData.episodes.length > 0) {
-                loadVideo(infoData.episodes[0].id);
-                document.querySelector('.ep-btn').classList.add('active');
+                playEpisode(infoData.episodes[0].id);
             }
 
         } catch (err) {
-            console.error(err);
-            document.getElementById('player-wrapper').innerHTML = "<div style='padding:50px; text-align:center;'>Gagal memuat API Consumet.</div>";
+            document.getElementById('video-player').innerHTML = `<div class="error-msg">Gagal: ${err.message}</div>`;
         }
     }
 
-    async function loadVideo(episodeId) {
-        document.getElementById('player-wrapper').innerHTML = "<div style='padding:100px; text-align:center;'>Loading video...</div>";
+    function renderEpisodes(episodes) {
+        const container = document.getElementById('ep-list');
+        container.innerHTML = "";
         
-        try {
-            // Ambil link streaming / embed
-            const res = await fetch(`https://api.consumet.org/anime/gogoanime/watch/${episodeId}`);
-            const data = await res.json();
+        episodes.forEach((ep, index) => {
+            const btn = document.createElement('div');
+            btn.className = "ep-item";
+            btn.innerText = ep.number;
+            btn.onclick = () => {
+                // Hapus class active dari tombol lain
+                document.querySelectorAll('.ep-item').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                playEpisode(ep.id);
+            };
+            container.appendChild(btn);
             
-            // Consumet biasanya kasih beberapa link, kita pakai 'Referer' untuk Iframe
-            // Atau kalau mau simpel, kita pakai link embed langsung dari data headers
+            // Set episode 1 sebagai active di awal
+            if(index === 0) btn.classList.add('active');
+        });
+    }
+
+    async function playEpisode(episodeId) {
+        const playerDiv = document.getElementById('video-player');
+        playerDiv.innerHTML = `<div class="loading-text">Menghubungkan ke server video...</div>`;
+
+        try {
+            const res = await fetch(`${BASE_URL}/watch/${episodeId}`);
+            const data = await res.json();
+
+            // Ambil link embed / referer
             const embedUrl = data.headers.Referer || data.sources[0].url;
 
-            document.getElementById('player-wrapper').innerHTML = `
+            playerDiv.innerHTML = `
                 <iframe src="${embedUrl}" allowfullscreen scrolling="no"></iframe>
             `;
         } catch (err) {
-            document.getElementById('player-wrapper').innerHTML = "<div style='padding:50px; text-align:center;'>Gagal memuat player video.</div>";
+            playerDiv.innerHTML = `<div class="error-msg">Gagal memuat video. Coba episode lain.</div>`;
         }
     }
 
-    initPlayer();
+    // Jalankan aplikasi
+    startApp();
 </script>
+
 </body>
 </html>
