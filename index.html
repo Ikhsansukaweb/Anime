@@ -3,54 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donut Anime | Stable</title>
+    <title>DONUT ANIME | Sub Indo</title>
     <style>
-        :root { --bg: #0b1117; --card: #161b22; --accent: #00e701; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; }
-        .logo { font-size: 24px; text-align: center; color: var(--accent); font-weight: bold; margin: 20px 0; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #30363d; }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .info { padding: 10px; }
-        .title { font-size: 13px; font-weight: bold; height: 32px; overflow: hidden; }
-        .btn { display: block; background: var(--accent); color: black; text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 12px; }
+        :root { --bg: #0b0e14; --card: #161b22; --accent: #00e701; --text: #8b949e; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
+        header { padding: 15px; background: var(--card); border-bottom: 1px solid #30363d; text-align: center; }
+        .logo { font-size: 20px; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
+        .search-box { padding: 10px; border-radius: 20px; border: 1px solid #444c56; background: #0d1117; color: white; width: 85%; outline: none; }
+        .container { padding: 15px; }
+        h3 { border-left: 4px solid var(--accent); padding-left: 10px; font-size: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .anime-card { background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid #30363d; }
+        .anime-card img { width: 100%; height: 180px; object-fit: cover; background: #222; }
+        .info { padding: 8px; }
+        .title { font-size: 11px; font-weight: bold; height: 30px; overflow: hidden; margin-bottom: 5px; }
+        .btn-nonton { display: block; background: var(--accent); color: black; text-align: center; padding: 6px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 11px; }
+        .history-card { background: #21262d; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent); font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div class="logo">🍩 DONUT ANIME</div>
+<header>
+    <div class="logo">🍩 DONUT ANIME</div>
+    <input type="text" id="search" class="search-box" placeholder="Cari anime sub indo..." onkeypress="handleSearch(event)">
+</header>
 
-<div class="grid" id="anime-list">
-    <p style="grid-column: span 2; text-align: center;">Menghubungkan ke Jikan API...</p>
+<div class="container">
+    <div id="history-section"></div>
+    
+    <h3 id="section-title">✨ Update Terbaru</h3>
+    <div class="grid" id="anime-list">
+        <p style="grid-column: span 2; text-align: center; padding: 20px;">Menghubungkan ke server Wajik...</p>
+    </div>
 </div>
 
 <script>
-    // Jikan API jauh lebih stabil dibanding Vercel/Wajick untuk urusan list anime
-    async function loadAnime() {
+    // PAKAI PROXY BERBEDA (CORS.SH) UNTUK BYPASS BLOKIR
+    const PROXY = "https://api.allorigins.win/raw?url=";
+    const API_WAJIK = "https://wajik-anime-api.vercel.app/otakudesu";
+    const SB_URL = "https://alpiwaraxijqguwunroa.supabase.co/rest/v1";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFscGl3YXJheGlqcWd1d3Vucm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjY2MjMsImV4cCI6MjA4OTQwMjYyM30.WBaZGe4bEOcKdUXHEUe9nCtgfGO_ego6j0IfTcpiPY0";
+
+    async function fetchData(url) {
+        const response = await fetch(PROXY + encodeURIComponent(url));
+        return await response.json();
+    }
+
+    async function loadHome() {
         try {
-            const res = await fetch('https://api.jikan.moe/v4/seasons/now?limit=10');
-            const json = await res.json();
-            const list = json.data;
-            
-            const container = document.getElementById('anime-list');
-            container.innerHTML = "";
-            
-            list.forEach(anime => {
-                container.innerHTML += `
-                    <div class="card">
-                        <img src="${anime.images.webp.image_url}">
-                        <div class="info">
-                            <div class="title">${anime.title}</div>
-                            <a href="nonton.html?id=${anime.mal_id}&title=${encodeURIComponent(anime.title)}" class="btn">NONTON</a>
-                        </div>
-                    </div>
-                `;
-            });
+            const json = await fetchData(`${API_WAJIK}/ongoing`);
+            displayAnime(json.data);
         } catch (e) {
-            document.getElementById('anime-list').innerHTML = "Koneksi Bermasalah. Coba pakai WiFi atau Mode Pesawat On/Off.";
+            document.getElementById('anime-list').innerHTML = "Server sibuk, coba refresh.";
         }
     }
-    loadAnime();
+
+    async function loadHistory() {
+        try {
+            const res = await fetch(`${SB_URL}/watch_history?username=eq.Tuan%20Derr&order=last_watched.desc&limit=3`, {
+                headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}` }
+            });
+            const data = await res.json();
+            if(data.length > 0) {
+                let html = "<h3>🕒 Riwayat</h3>";
+                data.forEach(h => {
+                    html += `<div class="history-card"><b>${h.anime_id}</b><br><small>Tuan Derr sedang nonton ini</small></div>`;
+                });
+                document.getElementById('history-section').innerHTML = html;
+            }
+        } catch(e) {}
+    }
+
+    function displayAnime(list) {
+        const container = document.getElementById('anime-list');
+        container.innerHTML = "";
+        if(!list) { container.innerHTML = "Kosong."; return; }
+
+        list.forEach(anime => {
+            const id = anime.id || anime.slug;
+            container.innerHTML += `
+                <div class="anime-card">
+                    <img src="${anime.poster || anime.image}" onerror="this.src='https://via.placeholder.com/150'">
+                    <div class="info">
+                        <div class="title">${anime.title}</div>
+                        <a href="nonton.html?id=${id}&title=${encodeURIComponent(anime.title)}" class="btn-nonton">NONTON</a>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    async function handleSearch(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('anime-list').innerHTML = "Mencari...";
+            try {
+                const json = await fetchData(`${API_WAJIK}/search?q=${e.target.value}`);
+                displayAnime(json.data);
+            } catch(e) { alert("Error cari"); }
+        }
+    }
+
+    loadHome();
+    loadHistory();
 </script>
 </body>
 </html>
