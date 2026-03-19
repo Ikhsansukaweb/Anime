@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donut Anime | Player</title>
+    <title>Donut Anime | Watching</title>
     <style>
         :root { --bg: #0b0e14; --card: #161b22; --accent: #00e701; --text: #8b949e; }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 15px; }
         .back-btn { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: bold; }
+        
         .player-card { background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #30363d; margin: 15px 0; }
         .iframe-wrapper { position: relative; width: 100%; padding-top: 56.25%; }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
         .details { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #30363d; }
-        h1 { font-size: 18px; margin: 0; }
-        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; margin-top: 15px; }
-        .ep-item { background: #21262d; border: 1px solid #30363d; padding: 8px; border-radius: 6px; text-align: center; font-size: 12px; cursor: pointer; }
-        .ep-item.active { background: var(--accent); color: #000; font-weight: bold; }
-        .loading { text-align: center; padding: 20px; color: var(--text); }
+        h1 { font-size: 18px; margin: 0 0 10px 0; }
+        
+        .ep-label { font-size: 14px; color: var(--text); margin-top: 15px; display: block; }
+        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; margin-top: 10px; }
+        .ep-item { background: #21262d; border: 1px solid #30363d; padding: 10px; border-radius: 6px; text-align: center; font-size: 12px; cursor: pointer; color: white; text-decoration: none; }
+        .ep-item.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
+        .loading { text-align: center; padding: 30px; color: var(--text); }
     </style>
 </head>
 <body>
@@ -25,70 +29,77 @@
 
 <div class="player-card">
     <div class="iframe-wrapper" id="video-player">
-        <div class="loading">Sedang mencari video...</div>
+        <div class="loading">Menyiapkan video...</div>
     </div>
 </div>
 
 <div class="details">
     <h1 id="anime-title">Memuat...</h1>
+    <span class="ep-label">Pilih Episode:</span>
     <div class="ep-grid" id="ep-list"></div>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const title = urlParams.get('title') || "Anime";
-    document.getElementById('anime-title').innerText = title;
+    const animeId = urlParams.get('id'); // Ini adalah slug/id dari Otakudesu
+    const animeTitle = urlParams.get('title');
 
-    // Pakai Instance Vercel yang lebih stabil
-    const BASE_URL = "https://consumet-api-one.vercel.app/anime/gogoanime";
+    document.getElementById('anime-title').innerText = animeTitle;
 
-    async function start() {
+    // Pakai API Wajik yang tadi sudah kamu cek
+    const API_BASE = "https://wajik-anime-api.vercel.app/otakudesu";
+
+    async function init() {
         try {
-            // Bersihkan judul (Hapus Season, OVA, dll agar pencarian akurat)
-            const cleanTitle = title.replace(/2nd Season|Season 2|TV/gi, "").trim();
-            const res = await fetch(`${BASE_URL}/${cleanTitle}`);
-            const data = await res.json();
+            // 1. Ambil info detail anime & list episode
+            const res = await fetch(`${API_BASE}/anime/${animeId}`);
+            const json = await res.json();
+            const episodes = json.data.episode_list;
 
-            if (!data.results || data.results.length === 0) throw new Error("Video tidak ditemukan.");
+            if (!episodes || episodes.length === 0) throw new Error("Episode tidak ditemukan.");
 
-            const infoRes = await fetch(`${BASE_URL}/info/${data.results[0].id}`);
-            const infoData = await infoRes.json();
+            // 2. Tampilkan daftar episode (Urutan biasanya dari terbaru, kita balik kalau perlu)
+            const container = document.getElementById('ep-list');
+            episodes.reverse().forEach((ep, i) => {
+                const item = document.createElement('div');
+                item.className = "ep-item";
+                // Mengambil angka episode dari judul (misal: "Episode 01")
+                item.innerText = ep.title.replace(/[^0-9]/g, '') || (i + 1);
+                item.onclick = () => {
+                    document.querySelectorAll('.ep-item').forEach(b => b.classList.remove('active'));
+                    item.classList.add('active');
+                    loadVideo(ep.id);
+                };
+                container.appendChild(item);
+                
+                // Load episode pertama otomatis
+                if(i === 0) item.click();
+            });
 
-            renderEpisodes(infoData.episodes);
         } catch (err) {
             document.getElementById('video-player').innerHTML = `<div class="loading" style="color:#ff6b6b">Gagal: ${err.message}</div>`;
         }
     }
 
-    function renderEpisodes(eps) {
-        const container = document.getElementById('ep-list');
-        eps.forEach((ep, i) => {
-            const div = document.createElement('div');
-            div.className = "ep-item";
-            div.innerText = ep.number;
-            div.onclick = () => {
-                document.querySelectorAll('.ep-item').forEach(b => b.classList.remove('active'));
-                div.classList.add('active');
-                loadVideo(ep.id);
-            };
-            container.appendChild(div);
-            if(i === 0) div.click();
-        });
-    }
+    async function loadVideo(epId) {
+        const playerDiv = document.getElementById('video-player');
+        playerDiv.innerHTML = `<div class="loading">Mengambil link streaming...</div>`;
 
-    async function loadVideo(id) {
-        document.getElementById('video-player').innerHTML = `<div class="loading">Memutar video...</div>`;
         try {
-            const res = await fetch(`${BASE_URL}/watch/${id}`);
-            const data = await res.json();
-            const src = data.headers?.Referer || data.sources[0].url;
-            document.getElementById('video-player').innerHTML = `<iframe src="${src}" allowfullscreen></iframe>`;
+            // 3. Ambil link embed/mirror dari Wajik
+            const res = await fetch(`${API_BASE}/episode/${epId}`);
+            const json = await res.json();
+            
+            // Wajik biasanya memberikan banyak mirror. Kita ambil yang pertama atau yang ada kata 'Embed'
+            const streamUrl = json.data.mirror_embed[0].link;
+
+            playerDiv.innerHTML = `<iframe src="${streamUrl}" allowfullscreen scrolling="no"></iframe>`;
         } catch (e) {
-            document.getElementById('video-player').innerHTML = `<div class="loading">Gagal memutar episode ini.</div>`;
+            playerDiv.innerHTML = `<div class="loading">Gagal memuat video. Coba episode lain.</div>`;
         }
     }
 
-    start();
+    init();
 </script>
 </body>
 </html>
