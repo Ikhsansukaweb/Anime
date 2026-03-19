@@ -3,31 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donut Anime | Home</title>
+    <title>Donut Anime | Sub Indo</title>
     <style>
         :root { --bg: #0b0e14; --card: #161b22; --accent: #00e701; --text: #8b949e; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
-        header { padding: 15px; background: var(--card); border-bottom: 1px solid #30363d; text-align: center; position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 20px; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; }
+        header { padding: 15px; background: var(--card); border-bottom: 1px solid #30363d; text-align: center; }
+        .logo { font-size: 22px; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
         .search-box { padding: 10px; border-radius: 20px; border: 1px solid #444c56; background: #0d1117; color: white; width: 85%; outline: none; }
-        
         .container { padding: 15px; }
-        h3 { border-left: 4px solid var(--accent); padding-left: 10px; font-size: 16px; margin-top: 25px; }
-        
-        /* Grid Layout */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .anime-card { background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid #30363d; position: relative; }
-        .anime-card img { width: 100%; height: 200px; object-fit: cover; }
+        .anime-card { background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid #30363d; }
+        .anime-card img { width: 100%; height: 220px; object-fit: cover; }
         .info { padding: 10px; }
-        .title { font-size: 12px; font-weight: bold; height: 32px; overflow: hidden; margin-bottom: 8px; }
-        
-        .btn-nonton { display: block; background: var(--accent); color: black; text-align: center; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 11px; }
-
-        /* Style Riwayat */
-        .history-list { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; }
-        .history-card { min-width: 140px; background: var(--card); border-radius: 8px; border: 1px solid #30363d; font-size: 11px; }
-        .history-card img { width: 100%; height: 80px; object-fit: cover; border-radius: 8px 8px 0 0; }
-        .history-info { padding: 5px; text-align: center; }
+        .title { font-size: 13px; font-weight: bold; height: 35px; overflow: hidden; margin-bottom: 8px; }
+        .btn-nonton { display: block; background: var(--accent); color: black; text-align: center; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 12px; }
+        .history-item { background: #21262d; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent); font-size: 12px; }
     </style>
 </head>
 <body>
@@ -38,75 +28,45 @@
 </header>
 
 <div class="container">
-    <div id="history-section" style="display:none;">
-        <h3>🕒 Lanjut Nonton</h3>
-        <div class="history-list" id="history-content">
-            </div>
-    </div>
-
-    <h3 id="section-title">✨ Update Terbaru (Otakudesu)</h3>
+    <div id="history-section"></div>
+    <h3 id="section-title">✨ Update Terbaru</h3>
     <div class="grid" id="anime-list">
-        <p style="grid-column: span 2; text-align: center; padding: 20px;">Memuat anime...</p>
+        <p style="grid-column: span 2; text-align: center;">Memuat anime via Proxy...</p>
     </div>
 </div>
 
 <script>
-    // Konfigurasi API & Database
+    // PROXY adalah kunci agar tidak "Gagal Fetch"
+    const PROXY = "https://api.allorigins.win/raw?url=";
     const API_BASE = "https://wajik-anime-api.vercel.app/otakudesu";
     const SB_URL = "https://alpiwaraxijqguwunroa.supabase.co/rest/v1";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFscGl3YXJheGlqcWd1d3Vucm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjY2MjMsImV4cCI6MjA4OTQwMjYyM30.WBaZGe4bEOcKdUXHEUe9nCtgfGO_ego6j0IfTcpiPY0";
-    const USER_IGN = "Tuan Derr";
 
-    // 1. Ambil Riwayat dari Supabase
+    async function loadHome() {
+        try {
+            // Kita tembak lewat Proxy
+            const res = await fetch(PROXY + encodeURIComponent(`${API_BASE}/ongoing`));
+            const json = await res.json();
+            displayAnime(json.data);
+        } catch (e) {
+            document.getElementById('anime-list').innerHTML = "Gagal memuat. Coba refresh halaman.";
+        }
+    }
+
     async function loadHistory() {
         try {
-            const res = await fetch(`${SB_URL}/watch_history?username=eq.${USER_IGN}&order=last_watched.desc&limit=5`, {
+            const res = await fetch(`${SB_URL}/watch_history?username=eq.Tuan%20Derr&order=last_watched.desc&limit=3`, {
                 headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}` }
             });
             const data = await res.json();
-            
-            if (data.length > 0) {
-                document.getElementById('history-section').style.display = "block";
-                const container = document.getElementById('history-content');
-                container.innerHTML = data.map(item => `
-                    <a href="nonton.html?id=${item.anime_id}&title=${encodeURIComponent(item.anime_id)}" style="text-decoration:none; color:inherit;">
-                        <div class="history-card">
-                            <div class="history-info">
-                                <b>${item.anime_id.substring(0, 15)}...</b><br>
-                                <small style="color:var(--accent)">Klik pntuk lanjut</small>
-                            </div>
-                        </div>
-                    </a>
-                `).join('');
+            if(data.length > 0) {
+                let html = "<h3>🕒 Riwayat</h3>";
+                data.forEach(h => {
+                    html += `<div class="history-item"><b>${h.anime_id}</b></div>`;
+                });
+                document.getElementById('history-section').innerHTML = html;
             }
-        } catch (e) { console.log("Riwayat kosong"); }
-    }
-
-    // 2. Simpan Riwayat saat Klik Nonton
-    async function saveToHistory(id, title) {
-        await fetch(`${SB_URL}/watch_history`, {
-            method: 'POST',
-            headers: { 
-                "apikey": SB_KEY, 
-                "Authorization": `Bearer ${SB_KEY}`, 
-                "Content-Type": "application/json",
-                "Prefer": "resolution=merge-duplicates" 
-            },
-            body: JSON.stringify({
-                username: USER_IGN,
-                anime_id: id,
-                last_watched: new Date().toISOString()
-            })
-        });
-    }
-
-    // 3. Load Anime Ongoing
-    async function loadHome() {
-        try {
-            const res = await fetch(`${API_BASE}/ongoing`);
-            const json = await res.json();
-            displayAnime(json.data);
-        } catch (e) { console.log("Gagal muat ongoing"); }
+        } catch(e) {}
     }
 
     function displayAnime(list) {
@@ -119,9 +79,7 @@
                     <img src="${anime.poster}" alt="Poster">
                     <div class="info">
                         <div class="title">${anime.title}</div>
-                        <a href="nonton.html?id=${id}&title=${encodeURIComponent(anime.title)}" 
-                           onclick="saveToHistory('${id}', '${anime.title}')" 
-                           class="btn-nonton">NONTON</a>
+                        <a href="nonton.html?id=${id}&title=${encodeURIComponent(anime.title)}" class="btn-nonton">NONTON</a>
                     </div>
                 </div>
             `;
@@ -130,15 +88,13 @@
 
     async function handleSearch(e) {
         if (e.key === 'Enter') {
-            const query = e.target.value;
             document.getElementById('anime-list').innerHTML = "Mencari...";
-            const res = await fetch(`${API_BASE}/search?q=${query}`);
+            const res = await fetch(PROXY + encodeURIComponent(`${API_BASE}/search?q=${e.target.value}`));
             const json = await res.json();
             displayAnime(json.data);
         }
     }
 
-    // Jalankan semua
     loadHome();
     loadHistory();
 </script>
