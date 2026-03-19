@@ -465,7 +465,7 @@
         <input type="text" id="m-ign" placeholder="Masukkan IGN / Nickname">
         <input type="number" id="m-qty" value="1" min="1" oninput="updateTotal()" placeholder="Jumlah">
         
-        <label style="color: #fff; font-weight: 600; margin-bottom: 8px; display: block;">Metode Pembayaran:</label>
+                <label style="color: #fff; font-weight: 600; margin-bottom: 8px; display: block;">Metode Pembayaran:</label>
         <select id="m-method" onchange="showPaymentDetails()">
             <option value="DANA">DANA (08989294545)</option>
             <option value="GOPAY">GOPAY (08989294545)</option>
@@ -568,3 +568,121 @@
         if(!activeItem || activeItem.stok <= 0) {
             return alert("Stok habis bosku! 😅");
         }
+        document.getElementById("m-title").innerText = activeItem.nama_produk;
+        document.getElementById("m-price-info").innerText = "@ Rp " + activeItem.harga.toLocaleString();
+        document.getElementById("orderModal").style.display = "flex";
+        document.getElementById("m-qty").value = 1;
+        document.getElementById("m-ign").value = "";
+        document.getElementById("m-bukti").value = "";
+        updateTotal();
+    }
+
+    function closeModal() { 
+        document.getElementById("orderModal").style.display = "none"; 
+    }
+    
+    function showPaymentDetails() { 
+        document.getElementById("qris-area").style.display = document.getElementById("m-method").value === "QRIS" ? "block" : "none"; 
+    }
+    
+    function updateTotal() { 
+        if(activeItem) {
+            const qty = parseInt(document.getElementById("m-qty").value) || 1;
+            document.getElementById("m-total").innerText = "Rp " + (qty * activeItem.harga).toLocaleString();
+        }
+    }
+
+    async function submitOrder() {
+        const ign = document.getElementById("m-ign").value.trim();
+        const qty = parseInt(document.getElementById("m-qty").value);
+        const file = document.getElementById("m-bukti").files[0];
+
+        if(!ign) return alert("⚠️ Lengkapi IGN / Nickname!");
+        if(!file) return alert("⚠️ Upload bukti transfer terlebih dahulu!");
+        if(qty > activeItem.stok) return alert("⚠️ Stok tidak mencukupi!");
+
+        const btn = document.getElementById("btn-submit");
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+        btn.disabled = true;
+
+        try {
+            // 1. Potong Stok
+            await fetch(`${S_URL}/rest/v1/produk?id=eq.${activeItem.id}`, {
+                method: "PATCH",
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({ stok: activeItem.stok - qty })
+            });
+
+            // 2. Simpan Data Jual
+            const resJual = await fetch(`${S_URL}/rest/v1/penjualan`, {
+                method: "POST",
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}`, 
+                    "Content-Type": "application/json", 
+                    "Prefer": "return=representation" 
+                },
+                body: JSON.stringify({ 
+                    ign, 
+                    nama_item: activeItem.nama_produk, 
+                    jumlah: qty, 
+                    total_bayar: qty * activeItem.harga, 
+                    status: "PENDING" 
+                })
+            });
+            const dataJual = await resJual.json();
+
+            // 3. Kirim Telegram via GAS
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result.split(",")[1];
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "upload_bukti",
+                        image: base64,
+                        id_jual: dataJual[0].id,
+                        id_produk: activeItem.id,
+                        jumlah_beli: qty,
+                        caption: `🔔 *PESANAN BARU SANN SHOP*\n\n👤 IGN: ${ign}\n📦 Item: ${activeItem.nama_produk}\n🔢 Qty: ${qty}\n💰 Total: Rp ${(qty * activeItem.harga).toLocaleString()}`
+                    })
+                });
+                
+                alert("✅ Pesanan berhasil dikirim! Silakan tunggu konfirmasi admin dalam 5-10 menit.");
+                closeModal();
+                location.reload();
+            };
+            reader.readAsDataURL(file);
+            
+        } catch (err) {
+            console.error(err);
+            alert("❌ Gagal mengirim pesanan: " + err.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> KIRIM PESANAN';
+        }
+    }
+
+    // Initialize
+    fetchData();
+    setInterval(fetchAntrean, 10000); // Update antrean setiap 10 detik
+    
+    // Close modal on outside click
+    document.getElementById("orderModal").addEventListener("click", function(e) {
+        if (e.target === this) closeModal();
+    });
+    
+    // Prevent body scroll when modal open
+    document.getElementById("orderModal").addEventListener("show", function() {
+        document.body.style.overflow = "hidden";
+    });
+    document.getElementById("orderModal").addEventListener("hide", function() {
+        document.body.style.overflow = "auto";
+    });
+</script>
+
+</body>
+</html>
