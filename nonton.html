@@ -58,9 +58,12 @@
 
     // Tampilkan judul di halaman
     document.getElementById('anime-title').innerText = rawTitle;
+    
+const BASE_URL = "https://cors-anywhere.herokuapp.com/https://consumet-api-one.vercel.app/anime/gogoanime";
+    
+// MENJADI INI (Pilih salah satu yang paling lancar):
+const BASE_URL = "https://consumet-api-one.vercel.app/anime/gogoanime";
 
-    // API Consumet yang lebih stabil
-    const BASE_URL = "https://consumet-api-production-e610.up.railway.app/anime/gogoanime";
 
     async function startApp() {
         try {
