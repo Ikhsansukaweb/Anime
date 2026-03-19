@@ -3,108 +3,568 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DONUT ANIME | Sub Indo</title>
+    <title>SannShop - Money Donut Aman Terpercaya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #0b0e14; --card: #161b22; --accent: #00e701; --text: #8b949e; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
-        header { padding: 15px; background: var(--card); border-bottom: 1px solid #30363d; text-align: center; }
-        .logo { font-size: 20px; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
-        .search-box { padding: 10px; border-radius: 20px; border: 1px solid #444c56; background: #0d1117; color: white; width: 85%; outline: none; }
-        .container { padding: 15px; }
-        h3 { border-left: 4px solid var(--accent); padding-left: 10px; font-size: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .anime-card { background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid #30363d; }
-        .anime-card img { width: 100%; height: 180px; object-fit: cover; background: #222; }
-        .info { padding: 8px; }
-        .title { font-size: 11px; font-weight: bold; height: 30px; overflow: hidden; margin-bottom: 5px; }
-        .btn-nonton { display: block; background: var(--accent); color: black; text-align: center; padding: 6px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 11px; }
-        .history-card { background: #21262d; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent); font-size: 12px; }
+        :root { 
+            --primary: #0f0f23; 
+            --secondary: #1a1a2e; 
+            --accent: #00ff88; 
+            --accent-dark: #00cc6a; 
+            --danger: #ff4757;
+            --purple: #8b5cf6;
+            --glow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #0c0c1a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #00ff88, transparent),
+                radial-gradient(2px 2px at 40px 70px, #8b5cf6, transparent),
+                radial-gradient(1px 1px at 90px 40px, #ff4757, transparent),
+                radial-gradient(1px 1px at 130px 80px, #00cc6a, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: float 20s infinite linear;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
+        /* Header */
+        .header { 
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--glow);
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 2px;
+        }
+        
+        .header h1 { 
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--accent), #8b5cf6, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: var(--glow);
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+        
+        .header p { 
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 30px auto; 
+            padding: 0 20px; 
+        }
+
+        /* Antrean Section */
+        .antrean-card { 
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px; 
+            padding: 25px; 
+            margin-bottom: 30px;
+            box-shadow: var(--glow), 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .antrean-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .antrean-header { 
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent);
+        }
+        
+        .antrean-item { 
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(15, 15, 35, 0.6);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .antrean-item:hover {
+            transform: translateX(10px);
+            box-shadow: var(--glow);
+        }
+        
+        .status-badge { 
+            background: linear-gradient(45deg, var(--accent), var(--accent-dark));
+            color: #0f0f23;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-shadow: none;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Product Grid */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 25px; 
+        }
+        
+        .card { 
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px; 
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--purple), var(--accent));
+        }
+        
+        .card:hover { 
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,255,136,0.3), var(--glow);
+            border-color: var(--accent);
+        }
+        
+        .card img { 
+            width: 100%; 
+            aspect-ratio: 1/1; 
+            object-fit: cover;
+            filter: brightness(1.1) contrast(1.1);
+            transition: filter 0.3s;
+        }
+        
+        .card:hover img {
+            filter: brightness(1.3) contrast(1.2) saturate(1.2);
+        }
+        
+        .card-body { 
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card-body b { 
+            display: block; 
+            font-size: 1.1rem; 
+            margin-bottom: 10px;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .price { 
+            color: var(--accent); 
+            font-weight: 900; 
+            font-size: 1.3rem;
+            text-shadow: 0 0 10px var(--accent);
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .stok { 
+            font-size: 0.85rem; 
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent);
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            display: inline-block;
+            margin-top: 8px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px; 
+            box-sizing: border-box; 
+        }
+        
+        .modal-content { 
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(25px);
+            border: 2px solid rgba(0, 255, 136, 0.5);
+            width: 100%; 
+            max-width: 500px; 
+            border-radius: 25px; 
+            padding: 35px; 
+            position: relative; 
+            max-height: 90vh; 
+            overflow-y: auto;
+            box-shadow: var(--glow), 0 30px 60px rgba(0,0,0,0.7);
+        }
+        
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--accent), var(--purple), var(--accent));
+            border-radius: 25px;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        input, select { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 15px 0; 
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px; 
+            font-family: inherit;
+            background: rgba(26, 26, 46, 0.8);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+            background: rgba(26, 26, 46, 1);
+        }
+        
+        input::placeholder { color: rgba(255,255,255,0.6); }
+        
+        .btn-pay { 
+            background: linear-gradient(45deg, var(--accent), var(--accent-dark));
+            color: #0f0f23; 
+            border: none; 
+            width: 100%; 
+            padding: 18px; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            margin-top: 15px;
+            box-shadow: var(--glow);
+            transition: all 0.3s;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-pay:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.6);
+        }
+        
+        .btn-pay:active { transform: translateY(-1px); }
+
+        /* Floating Buttons - Updated */
+        .sann-floating-group {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 15px;
+            z-index: 99999;
+        }
+
+        .btn-sann {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--glow), 0 8px 25px rgba(0,0,0,0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            border: 2px solid transparent;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-sann::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-sann:hover::before { left: 100%; }
+        .btn-sann:hover { transform: scale(1.15) translateY(-10px) rotate(5deg); }
+
+        .btn-sann img {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            transition: filter 0.3s;
+        }
+
+        .btn-sann:hover img { filter: brightness(1) invert(0) sepia(1) saturate(5) hue-rotate(100deg); }
+
+        .bg-panel-admin { 
+            background: rgba(139, 92, 246, 0.9); 
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+        .bg-chat-admin { 
+            background: rgba(255, 152, 0, 0.9); 
+            border-color: rgba(255, 152, 0, 0.5);
+        }
+        .bg-wa-cs { 
+            background: rgba(37, 211, 102, 0.9); 
+            border-color: rgba(37, 211, 102, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 15px; margin: 20px auto; }
+        }
     </style>
 </head>
 <body>
+    
+<!-- Floating Buttons -->
+<div class="sann-floating-group">
+    <a href="admin-produk.html" class="btn-sann bg-panel-admin" data-title="Panel Admin">
+        <img src="https://cdn-icons-png.flaticon.com/512/3938/3938408.png" alt="Admin">
+    </a>
+    <a href="chat.html" class="btn-sann bg-chat-admin" data-title="Chat Manager">
+        <img src="https://cdn-icons-png.flaticon.com/512/4233/4233830.png" alt="Chat">
+    </a>
+    <a href="https://wa.me/628989294545" target="_blank" class="btn-sann bg-wa-cs" data-title="WhatsApp CS">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA">
+    </a>
+</div>
 
-<header>
-    <div class="logo">🍩 DONUT ANIME</div>
-    <input type="text" id="search" class="search-box" placeholder="Cari anime sub indo..." onkeypress="handleSearch(event)">
-</header>
+<div class="header">
+    <h1>SANNSHOP</h1>
+    <p><i class="fas fa-bolt"></i> DonutSmp Shop Aman Terpercaya <i class="fas fa-shield-alt"></i></p>
+</div>
 
 <div class="container">
-    <div id="history-section"></div>
-    
-    <h3 id="section-title">✨ Update Terbaru</h3>
-    <div class="grid" id="anime-list">
-        <p style="grid-column: span 2; text-align: center; padding: 20px;">Menghubungkan ke server Wajik...</p>
+    <div class="antrean-card">
+        <div class="antrean-header">
+            <i class="fas fa-clock"></i>
+            Antrean Pembeli Saat Ini
+        </div>
+        <div id="antrean-list">Memuat antrean...</div>
+    </div>
+
+    <div id="product-grid" class="grid"></div>
+</div>
+
+<!-- Modal sama persis seperti sebelumnya -->
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <h2 id="m-title" style="margin-top:0; font-family: 'Orbitron', monospace; color: var(--accent); text-align: center;">Order</h2>
+        <p id="m-price-info" style="color:var(--accent); font-weight:bold; text-align: center; font-size: 1.1rem;"></p>
+        
+        <input type="text" id="m-ign" placeholder="Masukkan IGN / Nickname">
+        <input type="number" id="m-qty" value="1" min="1" oninput="updateTotal()" placeholder="Jumlah">
+        
+        <label style="color: #fff; font-weight: 600; margin-bottom: 8px; display: block;">Metode Pembayaran:</label>
+        <select id="m-method" onchange="showPaymentDetails()">
+            <option value="DANA">DANA (08989294545)</option>
+            <option value="GOPAY">GOPAY (08989294545)</option>
+            <option value="QRIS">QRIS All Payment</option>
+        </select>
+
+        <div id="qris-area" style="display:none; text-align:center; margin: 20px 0;">
+            <img src="https://i.ibb.co.com/5hnkQRy6/1773671419683.jpg" style="width:220px; border: 2px solid rgba(0,255,136,0.5); border-radius:15px; box-shadow: var(--glow);">
+            <p style="font-size:12px; color:#ccc; margin-top:10px;">Scan QRIS di atas untuk membayar</p>
+        </div>
+
+        <div style="background:rgba(26,26,46,0.8); padding:20px; border-radius:15px; margin:20px 0; border:1px solid rgba(0,255,136,0.3);">
+            <small style="color:#ccc;">Total Bayar:</small>
+            <div id="m-total" style="font-size:24px; font-weight:900; color:var(--accent); font-family: 'Orbitron', monospace; text-shadow: 0 0 15px var(--accent);">Rp 0</div>
+        </div>
+
+        <label style="color: #fff; font-weight: 600; margin-bottom: 8px; display: block;">Upload Bukti Transfer:</label>
+        <input type="file" id="m-bukti" accept="image/*">
+
+        <button class="btn-pay" id="btn-submit" onclick="submitOrder()">
+            <i class="fas fa-paper-plane"></i> KIRIM PESANAN
+        </button>
+        <button onclick="closeModal()" style="width:100%; border:none; background:rgba(255,71,87,0.2); color:var(--danger); cursor:pointer; margin-top:15px; padding:15px; border-radius:12px; font-weight:600; border:1px solid rgba(255,71,87,0.3); transition:0.3s;">
+            <i class="fas fa-times"></i> Batal
+        </button>
     </div>
 </div>
 
 <script>
-    // PAKAI PROXY BERBEDA (CORS.SH) UNTUK BYPASS BLOKIR
-    const PROXY = "https://api.allorigins.win/raw?url=";
-    const API_WAJIK = "https://wajik-anime-api.vercel.app/otakudesu";
-    const SB_URL = "https://alpiwaraxijqguwunroa.supabase.co/rest/v1";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFscGl3YXJheGlqcWd1d3Vucm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjY2MjMsImV4cCI6MjA4OTQwMjYyM30.WBaZGe4bEOcKdUXHEUe9nCtgfGO_ego6j0IfTcpiPY0";
+    const S_URL = "https://ybllqewkapqmtxknmqmd.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlibGxxZXdrYXBxbXR4a25tcW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjgzMDYsImV4cCI6MjA4OTI0NDMwNn0.S3FOYT7lkSMqnOiuWuYwNu6Alf0YCK5Ki0aX_1EX1H0";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyeXwWMMNpi1B7DThs13lk3JZlqWIV8NjdMwfvcEjMK9ywbzAxe258BE75RR74kw-pT1A/exec";
+    let products = [];
+    let activeItem = null;
 
-    async function fetchData(url) {
-        const response = await fetch(PROXY + encodeURIComponent(url));
-        return await response.json();
-    }
-
-    async function loadHome() {
+    async function fetchData() {
         try {
-            const json = await fetchData(`${API_WAJIK}/ongoing`);
-            displayAnime(json.data);
-        } catch (e) {
-            document.getElementById('anime-list').innerHTML = "Server sibuk, coba refresh.";
+            const res = await fetch(`${S_URL}/rest/v1/produk?order=id.asc`, { 
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}` 
+                } 
+            });
+            products = await res.json();
+            renderProducts();
+            fetchAntrean();
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
     }
 
-    async function loadHistory() {
+    function renderProducts() {
+        document.getElementById("product-grid").innerHTML = products.map(p => `
+            <div class="card" onclick="openOrder(${p.id})">
+                <img src="${p.img_url}" onerror="this.src='https://via.placeholder.com/220?text=NO+IMAGE'">
+                <div class="card-body">
+                    <b>${p.nama_produk}</b>
+                    <div class="price">Rp ${p.harga.toLocaleString()}</div>
+                    <div class="stok">Stok: ${p.stok}</div>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    // FITUR SENSOR IGN
+    function sensorIGN(name) {
+        if (name.length <= 2) return name + "***";
+        return name.substring(0, 1) + "***" + name.substring(name.length - 1);
+    }
+
+    async function fetchAntrean() {
         try {
-            const res = await fetch(`${SB_URL}/watch_history?username=eq.Tuan%20Derr&order=last_watched.desc&limit=3`, {
-                headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}` }
+            const res = await fetch(`${S_URL}/rest/v1/penjualan?status=eq.PENDING&order=created_at.desc&limit=5`, { 
+                headers: { 
+                    "apikey": S_KEY, 
+                    "Authorization": `Bearer ${S_KEY}` 
+                } 
             });
             const data = await res.json();
-            if(data.length > 0) {
-                let html = "<h3>🕒 Riwayat</h3>";
-                data.forEach(h => {
-                    html += `<div class="history-card"><b>${h.anime_id}</b><br><small>Tuan Derr sedang nonton ini</small></div>`;
-                });
-                document.getElementById('history-section').innerHTML = html;
+            const list = document.getElementById("antrean-list");
+            
+            if(data.length === 0) {
+                list.innerHTML = "<div style='color:#888; text-align:center; padding:20px; font-style:italic;'>Belum ada antrean saat ini. <i class='fas fa-check-circle' style='color:var(--accent);'></i></div>";
+                return;
             }
-        } catch(e) {}
-    }
-
-    function displayAnime(list) {
-        const container = document.getElementById('anime-list');
-        container.innerHTML = "";
-        if(!list) { container.innerHTML = "Kosong."; return; }
-
-        list.forEach(anime => {
-            const id = anime.id || anime.slug;
-            container.innerHTML += `
-                <div class="anime-card">
-                    <img src="${anime.poster || anime.image}" onerror="this.src='https://via.placeholder.com/150'">
-                    <div class="info">
-                        <div class="title">${anime.title}</div>
-                        <a href="nonton.html?id=${id}&title=${encodeURIComponent(anime.title)}" class="btn-nonton">NONTON</a>
-                    </div>
+            
+            list.innerHTML = data.map(a => `
+                <div class="antrean-item">
+                    <span><i class='fas fa-user'></i> <b>${sensorIGN(a.ign)}</b> beli <span style='color:var(--accent);'>${a.nama_item}</span> (${a.jumlah})</span>
+                    <span class="status-badge"><i class='fas fa-spinner fa-spin'></i> Sedang Diproses</span>
                 </div>
-            `;
-        });
-    }
-
-    async function handleSearch(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('anime-list').innerHTML = "Mencari...";
-            try {
-                const json = await fetchData(`${API_WAJIK}/search?q=${e.target.value}`);
-                displayAnime(json.data);
-            } catch(e) { alert("Error cari"); }
+            `).join("");
+        } catch (error) {
+            console.error('Error fetching antrean:', error);
         }
     }
 
-    loadHome();
-    loadHistory();
-</script>
-</body>
-</html>
+    function openOrder(id) {
+        activeItem = products.find(p => p.id === id);
+        if(!activeItem || activeItem.stok <= 0) {
+            return alert("Stok habis bosku! 😅");
+        }
