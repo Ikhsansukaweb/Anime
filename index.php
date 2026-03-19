@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donut Anime | Home</title>
+    <style>
+        :root { --bg: #0e1117; --card: #1c2128; --accent: #00e701; --text: #adbac7; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
+        header { padding: 20px; background: var(--card); border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; color: var(--accent); }
+        .search-box { padding: 10px; border-radius: 20px; border: 1px solid #444c56; background: #0d1117; color: white; width: 250px; outline: none; }
+        
+        .container { padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+        .anime-card { background: var(--card); border-radius: 12px; overflow: hidden; transition: 0.3s; border: 1px solid #30363d; position: relative; }
+        .anime-card:hover { transform: scale(1.05); border-color: var(--accent); }
+        .anime-card img { width: 100%; height: 240px; object-fit: cover; }
+        .info { padding: 10px; }
+        .title { font-size: 14px; font-weight: bold; margin-bottom: 5px; height: 40px; overflow: hidden; }
+        
+        .btn-nonton { display: block; background: var(--accent); color: black; text-align: center; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 12px; margin-top: 5px; }
+        .btn-fav { background: none; border: 1px solid var(--accent); color: var(--accent); width: 100%; padding: 5px; border-radius: 5px; cursor: pointer; font-size: 11px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">🍩 DONUT ANIME</div>
+    <input type="text" id="search" class="search-box" placeholder="Cari anime..." onkeypress="handleSearch(event)">
+</header>
+
+<div class="container">
+    <h2 id="section-title">🔥 Sedang Trending</h2><br>
+    <div class="grid" id="anime-list">
+        </div>
+</div>
+
+<script>
+    const SUPABASE_URL = "https://alpiwaraxijqguwunroa.supabase.co/rest/v1";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFscGl3YXJheGlqcWd1d3Vucm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjY2MjMsImV4cCI6MjA4OTQwMjYyM30.WBaZGe4bEOcKdUXHEUe9nCtgfGO_ego6j0IfTcpiPY0";
+    const username = localStorage.getItem('userIGN') || "Tuan Derr";
+
+    // 1. Ambil Data Trending dari Jikan API
+    async function fetchTrending() {
+        const res = await fetch('https://api.jikan.moe/v4/top/anime?limit=20');
+        const data = await res.json();
+        displayAnime(data.data);
+    }
+
+    // 2. Fungsi Pencarian
+    async function handleSearch(e) {
+        if (e.key === 'Enter') {
+            const query = e.target.value;
+            document.getElementById('section-title').innerText = "Hasil Pencarian: " + query;
+            const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}`);
+            const data = await res.json();
+            displayAnime(data.data);
+        }
+    }
+
+    function displayAnime(list) {
+        const container = document.getElementById('anime-list');
+        container.innerHTML = "";
+        list.forEach(anime => {
+            container.innerHTML += `
+                <div class="anime-card">
+                    <img src="${anime.images.jpg.image_url}" alt="Poster">
+                    <div class="info">
+                        <div class="title">${anime.title}</div>
+                        <a href="nonton.php?id=${anime.mal_id}&title=${encodeURIComponent(anime.title)}" class="btn-nonton">NONTON</a>
+                        <button class="btn-fav" onclick="saveFavorite('${anime.mal_id}', '${anime.title}', '${anime.images.jpg.image_url}')">❤️ FAVORIT</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // 3. Simpan ke Supabase (Tabel Bookmarks yang kita buat tadi)
+    async function saveFavorite(id, title, img) {
+        const res = await fetch(`${SUPABASE_URL}/bookmarks`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                anime_id: id,
+                anime_title: title,
+                anime_image: img
+            })
+        });
+        if (res.ok) alert("Berhasil simpan ke favorit!");
+    }
+
+    fetchTrending();
+</script>
+</body>
+</html>
